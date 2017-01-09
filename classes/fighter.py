@@ -52,7 +52,7 @@ class Fighter(object):
         if fighterPageUrl is not None:
             return fighterPageUrl                 # 解析详情页面
         else:
-            print(u'Didn\'t find anything.')
+            print(u'Err: Didn\'t find anything.')
             return -1
 
     '''-----解析详情页-----'''
@@ -184,10 +184,29 @@ class Fighter(object):
             self.birthday = ''
 
         # 选手战绩
+        ''' 示例
+        [
+            {
+                'Time': '0:48 Round 1 of 5', 
+                'Result': 'Loss | KO/TKO | Punches', 
+                'Opponent': {
+                    'Url': '/fightcenter/fighters/amanda-nunes-lioness-of-the-ring', 
+                    'Name': b'Amanda Nunes'
+                }
+            }, 
+            {
+                'Result': 'Cancelled Bout', 
+                'Opponent': {
+                    'Url': '/fightcenter/fighters/18698-holly-holm-hottie', 
+                    'Name': b'Holly Holm'
+                }
+            }
+        ]
+        '''
         if fightRecordAll:
-            self.fightRecord = fightRecordAll
+            self.fightrecord = fightRecordAll
         else:
-            self.fightRecord = ''
+            self.fightrecord = ''
 
 
 

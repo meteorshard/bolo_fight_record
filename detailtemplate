@@ -1,6 +1,7 @@
 {
     'Affiliation': 'Straight Blast Gym Ireland', 
-    'Fighter Pages': ['http://www.sherdog.com/fighter/Conor-McGregor-29688', 
+    'Fighter Pages': [
+                    'http://www.sherdog.com/fighter/Conor-McGregor-29688', 
                     'http://en.wikipedia.org/wiki/Conor_McGregor', 
                     'http://www.mixedmartialarts.com/fighter/fighter:C280482C339CDEB6', 
                     'http://www.ufc.com/fighter/Conor-McGregor'

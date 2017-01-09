@@ -1,12 +1,37 @@
 # -*- coding: utf-8 -*-
 
 from classes.fighter import Fighter
+from pymongo import MongoClient
 
 def tt_localtest():
-    test_fighter = Fighter('Ronda Rousey')
+    test_fighter = Fighter('Ronda Rou')
     print(test_fighter.name)
     print(test_fighter.aka)
     print(test_fighter.weightclass)
+    # print(repr(test_fighter.fightrecord))
+
+    tt_client = MongoClient()
+    db = tt_client.bolofightrecord
+    fighters = db.fighters
+
+    cursor = fighters.find({'name':test_fighter.name})
+
+    if cursor.count() > 0:
+        print('Found!')
+        for fighterfound in cursor:
+            print(repr(fighterfound))
+    else:
+        print('Not found! Insert new record...')
+        result = fighters.insert_one(
+            {
+                'name': test_fighter.name,
+                'aka': test_fighter.aka,
+                'fightrecord':test_fighter.fightrecord
+            }
+        )
+        if result:
+            print('Done.')
+
 
 if __name__ == '__main__':
     tt_localtest()
