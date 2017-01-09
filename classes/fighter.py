@@ -23,13 +23,19 @@ class Fighter(object):
         url = u'http://www.tapology.com/search'
         payload = {'term': nameToSearch}
         header = {
-                'Accept-Encoding':'gzip, deflate',
-                'User-Agent':"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
-                'Host':"www.tapology.com",
-                'Referer':"http://www.tapology.com/",
-                'X-Requested-With':"XMLHttpRequest"
+                'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Encoding':'gzip, deflate, sdch',
+                'Accept-Language':'zh-CN,zh;q=0.8',
+                'Connection':'keep-alive',
+                'Host':'www.tapology.com',
+                'Referer':'http://www.tapology.com/',
+                'Upgrade-Insecure-Requests':'1',
+                'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36Accept-Encoding:gzip, deflate, sdch'
         }
-        searchResult = s.get(url, params=payload, headers=header)
+        cookies = {
+            '_tapology_session_3_2':'dlg2SHI5Qk16dWk3enZDYUNaWExtT2F5L3FyV21TY2ZrTXZBcHM2N0tkRTdUanhUcldZdW9kRDJGUGJuNU1WYnU0VWRQcitwbDd5MHdlcHdpYk9wNEVkYW1ZQVZRZEx3YjJRSHNHWnlvTlVxcFI4WFpHN0FWK2Iyb2IzQW5hVWRqRHN1WHkzeFRIR05pMjdkcTYydGdReHd2ZitWdjBlN2VPeWV5N2tHdVBDMldBQ3lXdjR5ZzVBdU83emllZ1ZHLS1XV1RrWWN5czQ5cGZSbWNFRlA0UStnPT0%3D--9ae26d9d0925a8c6a041bd5b74f79516c818db59'
+        }
+        searchResult = s.get(url, params=payload, headers=header, cookies=cookies)
 
         soup = BeautifulSoup(searchResult.content, "html.parser")
 
@@ -52,23 +58,19 @@ class Fighter(object):
         else:
             s = requests.session()
             header = {
-                'Accept-Encoding':'gzip, deflate',
-                'User-Agent':"Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
-                'Host':"www.tapology.com",
-                'Referer':"http://www.tapology.com/",
-                'X-Requested-With':"XMLHttpRequest"
+                'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Encoding':'gzip, deflate, sdch',
+                'Accept-Language':'zh-CN,zh;q=0.8',
+                'Connection':'keep-alive',
+                'Host':'www.tapology.com',
+                'Referer':'http://www.tapology.com/',
+                'Upgrade-Insecure-Requests':'1',
+                'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36Accept-Encoding:gzip, deflate, sdch'
             }
             cookies = {
-                '_tapology_session_3_2':'VEpoMERtRCtWMkNQaWtmMWxydjZnZGY0bXFPSXV2RW5qWU5NYkRjaGNwd3RxOHRDZ0RVczBOSUF6RFRlQy9yMStmdlhpbUdRZUlVdEtBeTVjMURNd0VGMW1GbFdwMlJOTDdVa3BoNXMyQ3NZM3Z2TG5SaDN4OE1aWnJEMEczZlNJLytBTVM5MUx6RW5FUDRJUVZEbElEdFovSEFTdXA3aHM3NVJaYlNOa2IwVzZOd1hBaW1HTmhXN0pyK2NZbnlkLS1hVVM2bzB1RnVqQlN1ZmVibGNJSnN3PT0%3D--9357e61cae9d1d39244a1e628a76a1ac62561a96',
-                'remember_id':'99440',
-                'remember_token':'a398d9b35578002069660e5994a47775229c77a04b8f6c90aa0af51fbcb8b479',
-                '__utma':'268593006.152914935.1462258111.1466749671.1466839275.27',
-                '__utmb':'268593006.5.10.1466839275',
-                '__utmc':'268593006',
-                '__utmv':'268593006.|1=logged_in=yes=1',
-                '__utmz':'268593006.1463202945.10.2.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided)'
+                '_tapology_session_3_2':'dlg2SHI5Qk16dWk3enZDYUNaWExtT2F5L3FyV21TY2ZrTXZBcHM2N0tkRTdUanhUcldZdW9kRDJGUGJuNU1WYnU0VWRQcitwbDd5MHdlcHdpYk9wNEVkYW1ZQVZRZEx3YjJRSHNHWnlvTlVxcFI4WFpHN0FWK2Iyb2IzQW5hVWRqRHN1WHkzeFRIR05pMjdkcTYydGdReHd2ZitWdjBlN2VPeWV5N2tHdVBDMldBQ3lXdjR5ZzVBdU83emllZ1ZHLS1XV1RrWWN5czQ5cGZSbWNFRlA0UStnPT0%3D--9ae26d9d0925a8c6a041bd5b74f79516c818db59'
             }
-            detailPage = s.get(url, headers=header, cookies = cookies)
+            detailPage = s.get(url, headers=header, cookies=cookies)
             detailPageSoup = BeautifulSoup(detailPage.content, 'html.parser')
 
         detailSector = detailPageSoup.find('div', class_='details')                         # 解析个人资料详情区域----------------------------
@@ -78,7 +80,7 @@ class Fighter(object):
         fighterDetail = {}                                                                  # 初始化一个dict来存储详细信息
 
         for li in eachLi:                                                                   # 取每个单元格的内容
-            strongItems = li.find_all('strong')                                             # 粗体的是类别，比如名字、绰号什么的
+            strongItems = li.find_all('strong')                                             # 粗体的是类别,比如名字、绰号什么的
             if strongItems:
                 for eachStrongItem in strongItems:
                     detailThisStrong = []                                                   # 用个列表来存储可能的多项内容
@@ -96,29 +98,29 @@ class Fighter(object):
                                 detailThisStrong.append(nextTag.get('href'))
                             elif nextTag.name == 'span':
                                 detailThisStrong.append(nextTag.get_text())
-                        else:                                                               # 如果没下一项内容了就跳出循环，继续找<strong>
+                        else:                                                               # 如果没下一项内容了就跳出循环,继续找<strong>
                             break
-                        thisTag = nextTag                                                   # thisTag指向下一项，继续循环
+                        thisTag = nextTag                                                   # thisTag指向下一项,继续循环
 
                     fighterDetail[eachStrongItem.get_text().lstrip('| ').rstrip(':')] = detailThisStrong
 
         recordSector = detailPageSoup.find_all('table', class_='fightRecord')               # 解析战绩----------------------------
         fightRecordAll = []
-        for recordRow in recordSector[0].tbody.tr.find_all('tr'):                           # 每行对应一条比赛纪录，循环获取——这里有bug，Tapology页面里少写了一个/tr
+        for recordRow in recordSector[0].tbody.tr.find_all('tr'):                           # 每行对应一条比赛纪录,循环获取——这里有bug,Tapology页面里少写了一个/tr
             thisRecord = {}
             recordCols = recordRow.find_all('td')
 
             if len(recordCols) >= 4:                                                        # 只有四列的才可能是战绩
-                resultSpans = recordCols[0].find_all('span')                                # 第一列：比赛结果。有两种格式，一种里面有span（新的），一种没有
-                if resultSpans:                                                             # 有span，新格式
+                resultSpans = recordCols[0].find_all('span')                                # 第一列：比赛结果。有两种格式,一种里面有span（新的）,一种没有
+                if resultSpans:                                                             # 有span,新格式
                     thisRecord['Result'] = resultSpans[0].get_text(strip=True)              # 第一个span肯定是结果的文本描述
-                    if len(resultSpans) >= 2:                                               # 如果有两个或者以上的span，说明有比赛时间信息
+                    if len(resultSpans) >= 2:                                               # 如果有两个或者以上的span,说明有比赛时间信息
                         thisRecord['Time'] = resultSpans[1].get_text(strip=True)
                 else:                                                                       # 没span是旧格式
                     thisRecord['Result'] = recordCols[0].get_text(strip=True)               
 
                 opponentA = recordCols[1].find_all('a')                                     # 第二列：对手
-                thisOpponent = {}                                                           # 搞个dict来存储对手信息，两个keyword分别是名字和页面地址
+                thisOpponent = {}                                                           # 搞个dict来存储对手信息,两个keyword分别是名字和页面地址
                 if opponentA:
                     thisOpponent['Name'] = opponentA[0].get_text().encode('utf-8')          # 名字里有奇怪的葡语字符要编码成utf-8
                     thisOpponent['Url'] = opponentA[0].get('href')
