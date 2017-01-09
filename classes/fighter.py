@@ -137,29 +137,57 @@ class Fighter(object):
                 fightRecordAll.append(thisRecord)
 
 
+        # 选手姓名
         if ('Name' in fighterDetail.keys()):
             self.name = fighterDetail['Name'][0]
         elif('Given Name' in fighterDetail.keys()):
             self.name = fighterDetail['Given Name'][0]
+        else:
+            self.name = ''
 
+        # 选手绰号
         if ('Nickname' in fighterDetail.keys()):    
             self.aka = fighterDetail['Nickname'][0]
+        else:
+            self.aka = ''
 
+        # 选手组织
         if ('Affiliation' in fighterDetail.keys()):    
             self.affiliation = fighterDetail['Affiliation'][0]
+        else:
+            self.affiliation = ''
 
+        # 选手重量级
+        if ('Weight Class' in fighterDetail.keys()): 
+            self.weightclass = fighterDetail['Weight Class'][0]
+        else:
+            self.weightclass = ''
+
+
+        # 选手身高
         if ('Height' in fighterDetail.keys()): 
             self.height = re.search(r'\([1-2]\d{2}cm\)',fighterDetail['Height'][0]).group(0).lstrip('(').rstrip('cm)')
+        else:
+            self.height = ''
 
+        # 选手臂展
         if ('Reach' in fighterDetail.keys()): 
             self.reach = re.search(r'\([1-2]\d{2}cm\)',fighterDetail['Reach'][0]).group(0).lstrip('(').rstrip('cm)')
+        else:
+            self.reach = ''
 
+        # 选手生日
         if ('Date of Birth' in fighterDetail.keys()):
             yearBirth, monthBirth, dayBirth = fighterDetail['Date of Birth'][0].split('.')
             self.birthday = datetime(int(yearBirth),int(monthBirth),int(dayBirth))
+        else:
+            self.birthday = ''
 
+        # 选手战绩
         if fightRecordAll:
             self.fightRecord = fightRecordAll
+        else:
+            self.fightRecord = ''
 
 
 
