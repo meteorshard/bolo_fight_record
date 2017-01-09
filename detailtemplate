@@ -1,0 +1,20 @@
+{
+    'Affiliation': 'Straight Blast Gym Ireland', 
+    'Fighter Pages': ['http://www.sherdog.com/fighter/Conor-McGregor-29688', 
+                    'http://en.wikipedia.org/wiki/Conor_McGregor', 
+                    'http://www.mixedmartialarts.com/fighter/fighter:C280482C339CDEB6', 
+                    'http://www.ufc.com/fighter/Conor-McGregor'
+    ], 
+    'MMA Record': '19-3-0 (Win-Loss-Draw)', 
+    'Last Fight': 'March 05, 2016', 
+    'Age': '27', 
+    'Name': 'Conor McGregor', 
+    'Nickname': 'The Notorious', 
+    'Fighting out of': 'Dublin, Ireland', 
+    'Height': '5\'9" (175cm)', 
+    'Career Disclosed Earnings': '$2,704,000 USD', 
+    'Born': 'Dublin, Ireland', 
+    'Personal Pages': ['http://www.twitter.com/TheNotoriousMMA', 'http://www.facebook.com/thenotoriousmma', 'http://instagram.com/thenotoriousmma'], 
+    'Weight Class': 'Featherweight', 
+    'Current Streak': '1 Loss'
+}
