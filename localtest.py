@@ -12,18 +12,23 @@ def index():
     return process(request.args.get('fighter').replace('%20',' '))
 
 def process(name):
-
-    print('dafsdfasdfasfasdfasdf')
-
     bolofightrecord_client = MongoClient()
     db = bolofightrecord_client.bolofightrecord
     fighters = db.fighters
 
-    cursor = fighters.find({'name':re.compile(name,re.IGNORECASE)})
+    name_regex = ''
+    name_splited = name.split(' ')
+    print(name_splited)
+    for each_word in name_splited:
+        name_regex = name_regex + r'\b' + each_word + '.*'
+        print(name_regex)
+    name_regex = r'.*\b' + name_regex
+    print(name_regex)
+    cursor = fighters.find({'name':re.compile(name_regex,re.IGNORECASE)})
     if cursor.count() > 0:
         print('Found!')
         for fighterfound in cursor:
-            print(repr(fighterfound))
+            # print(repr(fighterfound))
             return fighterfound['name']
     else:
         return 'Not found'
