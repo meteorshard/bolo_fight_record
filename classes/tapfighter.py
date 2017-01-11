@@ -24,7 +24,7 @@ class TapFighter(object):
             weight: 体重 float
             reach: 臂展 float
             weight_class: 重量级 string
-            fight_record: 战绩 list
+            fight_records: 战绩 list
                 Example:
                 [ 
                     { 
@@ -61,7 +61,7 @@ class TapFighter(object):
             self.reach = 0
             self.weight_class = ''
             self.birthday = datetime(1799, 1, 1)
-            self.fight_record = []
+            self.fight_records = []
 
 
     def __init__(self, text_to_search):
@@ -254,6 +254,53 @@ class TapFighter(object):
         if 'Date of Birth' in temp_detail:
             yearBirth, monthBirth, dayBirth = temp_detail['Date of Birth'][0].split('.')
             fighter.birthday = datetime(int(yearBirth),int(monthBirth),int(dayBirth))
+
+        ''' 下面开始解析战绩部分
+        战绩区域是一个class_='fightRecord'的table
+        每个<tr>是一行，但并不是每行都是战绩
+        如果一行有超过4个<td>说明这一行是具体的战绩
+
+        Example:
+
+        <tr>
+            <td class="result">
+                <span class="hoverTool" title="Bout Page">
+                    <a href="/fightcenter/bouts/285016-ufc-fight-night-103-yair-el-pantera-rodriguez-vs-bj-the-prodigy-penn">Confirmed Upcoming Bout</a>
+                </span>
+            </td>
+            <td>
+                <p class="fightRecordOverflow">
+                    <span>
+                        <img class="fightRecordFlag" src="/assets/flags/MX-d65aa1408646b5deb96ccac71e5198c6.gif" alt="Mx">
+                        <a href="/fightcenter/fighters/70995-yair-rodriguez">Yair Rodriguez</a>
+                    </span>
+                    <br>
+                    <span class="left">16-10-2</span>
+                    <span class="right">9-1-0</span>
+                </p>
+            </td>
+            <td>
+                <p class="fightRecordOverflow">
+                    <img class="fightRecordFlag" src="/assets/flags/US-5781b16534d0a403efbc7d336f1667b8.gif" alt="Us">
+                    <a href="/fightcenter/events/42582-ufc-fight-night">UFC Fight Night 103: Rodriguez vs. Penn</a>
+                    <br>
+                    <span>Main Event | Featherweight | 145 lbs</span>
+                </p>
+            </td>
+            <td class="date">2017.01.15</td>
+        </tr>
+        
+        '''
+
+        # 获取战绩区域
+        record_sector = soup.find_all('table', class_='fightRecord')
+
+        # 获取战绩区域的所有行
+        for each_record_row in record_sector[0].tbody.tr.find_all('tr'):
+            record_cols = each_record_row.find_all('td')
+            # 如果一行超过4个<td>说明这是要找的战绩行
+            if len(record_cols) >= 4:
+
 
         return fighter
 
