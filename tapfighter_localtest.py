@@ -3,7 +3,7 @@
 from classes.tapfighter import TapFighter
 
 def main():
-    tapfighter_test = TapFighter('mike')
+    tapfighter_test = TapFighter('aldo')
 
     for each_fighter in tapfighter_test.fighters:
         print(each_fighter.name)

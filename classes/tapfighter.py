@@ -172,9 +172,20 @@ class TapFighter(object):
         # 用来临时存储选手详细数据（除了战绩）
         temp_detail = {}
 
-        # 取每个单元格的内容
+        ''' 取每个单元格的内容
+            粗体的是类别,比如名字、绰号什么的
+            Example:
+
+            <li class="noPadStripe">
+                <strong>Name:</strong>
+                <span>Mike Adams</span>
+            </li>
+            <li class="Stripe">
+                <strong>MMA Record:</strong>
+                <span>7-4-0 (Win-Loss-Draw)</span>
+            </li>
+        '''
         for li in each_li:
-            # 粗体的是类别,比如名字、绰号什么的
             strong_items = li.find_all('strong')
 
             if strong_items:
