@@ -13,7 +13,7 @@ class Fighter(object):
         if (stringToSearch[:7]=='http://') or (stringToSearch[-4:]=='html'):                # 如果传进来的是url就直接解析页面
             self.__analyzeFighterDetailPage(stringToSearch)
         else:                                                                               # 否则就去搜索名字
-            self.__searchFighterAtTapology(stringToSearch)
+            self.__analyzeFighterDetailPage(self.__searchFighterAtTapology(stringToSearch))
         
 
     '''-----搜索选手-----'''
@@ -41,37 +41,45 @@ class Fighter(object):
 
         pattern = re.compile(r'/fightcenter/fighters/.*')                                   # 匹配搜索结果的正则表达式
 
+        
+        # 搜索结果
+        fighterPageUrl = None
         for link in soup.find_all('a', href=pattern):
             fighterPageUrl = u'http://www.tapology.com' + link.get('href')
             break #只找第一个
 
-        if fighterPageUrl:
-            fighterResult = self.__analyzeFighterDetailPage(fighterPageUrl)                 # 解析详情页面
+        # 如果结果不为空
+        if fighterPageUrl is not None:
+            return fighterPageUrl                 # 解析详情页面
         else:
-            print(u'Didn\'t find anything.')
-            return
+            print(u'Err: Didn\'t find anything.')
+            return -1
 
     '''-----解析详情页-----'''
     def __analyzeFighterDetailPage(self, url):
-        if url[:8] == u'testpage':                                                          # 如果载入的是测试用本地页面
-            detailPageSoup = BeautifulSoup(open(url,encoding='utf-8'), 'html.parser')
+        if url != -1:
+            if url[:8] == u'testpage':                                                          # 如果载入的是测试用本地页面
+                detailPageSoup = BeautifulSoup(open(url,encoding='utf-8'), 'html.parser')
+            else:
+                s = requests.session()
+                header = {
+                    'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Encoding':'gzip, deflate, sdch',
+                    'Accept-Language':'zh-CN,zh;q=0.8',
+                    'Connection':'keep-alive',
+                    'Host':'www.tapology.com',
+                    'Referer':'http://www.tapology.com/',
+                    'Upgrade-Insecure-Requests':'1',
+                    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36Accept-Encoding:gzip, deflate, sdch'
+                }
+                cookies = {
+                    '_tapology_session_3_2':'dlg2SHI5Qk16dWk3enZDYUNaWExtT2F5L3FyV21TY2ZrTXZBcHM2N0tkRTdUanhUcldZdW9kRDJGUGJuNU1WYnU0VWRQcitwbDd5MHdlcHdpYk9wNEVkYW1ZQVZRZEx3YjJRSHNHWnlvTlVxcFI4WFpHN0FWK2Iyb2IzQW5hVWRqRHN1WHkzeFRIR05pMjdkcTYydGdReHd2ZitWdjBlN2VPeWV5N2tHdVBDMldBQ3lXdjR5ZzVBdU83emllZ1ZHLS1XV1RrWWN5czQ5cGZSbWNFRlA0UStnPT0%3D--9ae26d9d0925a8c6a041bd5b74f79516c818db59'
+                }
+                detailPage = s.get(url, headers=header, cookies=cookies)
+                detailPageSoup = BeautifulSoup(detailPage.content, 'html.parser')
         else:
-            s = requests.session()
-            header = {
-                'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Encoding':'gzip, deflate, sdch',
-                'Accept-Language':'zh-CN,zh;q=0.8',
-                'Connection':'keep-alive',
-                'Host':'www.tapology.com',
-                'Referer':'http://www.tapology.com/',
-                'Upgrade-Insecure-Requests':'1',
-                'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36Accept-Encoding:gzip, deflate, sdch'
-            }
-            cookies = {
-                '_tapology_session_3_2':'dlg2SHI5Qk16dWk3enZDYUNaWExtT2F5L3FyV21TY2ZrTXZBcHM2N0tkRTdUanhUcldZdW9kRDJGUGJuNU1WYnU0VWRQcitwbDd5MHdlcHdpYk9wNEVkYW1ZQVZRZEx3YjJRSHNHWnlvTlVxcFI4WFpHN0FWK2Iyb2IzQW5hVWRqRHN1WHkzeFRIR05pMjdkcTYydGdReHd2ZitWdjBlN2VPeWV5N2tHdVBDMldBQ3lXdjR5ZzVBdU83emllZ1ZHLS1XV1RrWWN5czQ5cGZSbWNFRlA0UStnPT0%3D--9ae26d9d0925a8c6a041bd5b74f79516c818db59'
-            }
-            detailPage = s.get(url, headers=header, cookies=cookies)
-            detailPageSoup = BeautifulSoup(detailPage.content, 'html.parser')
+            print(u'Nothing to analyze.')
+            return -1
 
         detailSector = detailPageSoup.find('div', class_='details')                         # 解析个人资料详情区域----------------------------
 
@@ -129,29 +137,76 @@ class Fighter(object):
                 fightRecordAll.append(thisRecord)
 
 
+        # 选手姓名
         if ('Name' in fighterDetail.keys()):
             self.name = fighterDetail['Name'][0]
         elif('Given Name' in fighterDetail.keys()):
             self.name = fighterDetail['Given Name'][0]
+        else:
+            self.name = ''
 
+        # 选手绰号
         if ('Nickname' in fighterDetail.keys()):    
             self.aka = fighterDetail['Nickname'][0]
+        else:
+            self.aka = ''
 
+        # 选手组织
         if ('Affiliation' in fighterDetail.keys()):    
             self.affiliation = fighterDetail['Affiliation'][0]
+        else:
+            self.affiliation = ''
 
+        # 选手重量级
+        if ('Weight Class' in fighterDetail.keys()): 
+            self.weightclass = fighterDetail['Weight Class'][0]
+        else:
+            self.weightclass = ''
+
+
+        # 选手身高
         if ('Height' in fighterDetail.keys()): 
             self.height = re.search(r'\([1-2]\d{2}cm\)',fighterDetail['Height'][0]).group(0).lstrip('(').rstrip('cm)')
+        else:
+            self.height = ''
 
+        # 选手臂展
         if ('Reach' in fighterDetail.keys()): 
             self.reach = re.search(r'\([1-2]\d{2}cm\)',fighterDetail['Reach'][0]).group(0).lstrip('(').rstrip('cm)')
+        else:
+            self.reach = ''
 
+        # 选手生日
         if ('Date of Birth' in fighterDetail.keys()):
             yearBirth, monthBirth, dayBirth = fighterDetail['Date of Birth'][0].split('.')
             self.birthday = datetime(int(yearBirth),int(monthBirth),int(dayBirth))
+        else:
+            self.birthday = ''
 
+        # 选手战绩
+        ''' 示例
+        [
+            {
+                'Time': '0:48 Round 1 of 5', 
+                'Result': 'Loss | KO/TKO | Punches', 
+                'Opponent': {
+                    'Url': '/fightcenter/fighters/amanda-nunes-lioness-of-the-ring', 
+                    'Name': b'Amanda Nunes'
+                }
+            }, 
+            {
+                'Result': 'Cancelled Bout', 
+                'Opponent': {
+                    'Url': '/fightcenter/fighters/18698-holly-holm-hottie', 
+                    'Name': b'Holly Holm'
+                }
+            }
+        ]
+        '''
         if fightRecordAll:
-            self.fightRecord = fightRecordAll
+            self.fightrecord = fightRecordAll
+        else:
+            self.fightrecord = ''
 
 
 
