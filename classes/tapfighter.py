@@ -219,8 +219,9 @@ class TapFighter(object):
             fighter.name = temp_detail['Given Name'][0]
 
         # 选手绰号
-        if 'Nickname' in temp_detail:    
-            fighter.aka = temp_detail['Nickname'][0]
+        if 'Nickname' in temp_detail:
+            if temp_detail['Nickname'][0] != r'N/A':
+                fighter.aka = temp_detail['Nickname'][0]
 
         # 选手组织
         if 'Affiliation' in temp_detail:    
