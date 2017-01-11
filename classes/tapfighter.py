@@ -88,9 +88,9 @@ class TapFighter(object):
             # 如果有，就再解析详情页
             if fighter_urls:
                 for url in fighter_urls:
-                    fighters.append(self.__analyze_detail_page(url))
+                    self.fighters.append(self.__analyze_detail_page(url))
 
-                    if len(fighters) >= 3:
+                    if len(self.fighters) >= 3:
                         break
 
     def __search(self, fighter_name):
@@ -191,22 +191,22 @@ class TapFighter(object):
                         elif this_tag.name == 'span':
                             detail_this_strong.append(this_tag.get_text())
 
-                    # 如果还存在下一项内容
-                    while this_tag.next_sibling.next_sibling:
-                        # next_tag指向下一项内容
-                        next_tag = this_tag.next_sibling.next_sibling
+                        # 如果还存在下一项内容
+                        if this_tag.next_sibling.next_sibling:
+                            # next_tag指向下一项内容
+                            next_tag = this_tag.next_sibling.next_sibling
 
-                        # 判断是文字还是链接
-                        if next_tag.name == this_tag.name:                                    
-                            if next_tag.name == 'a':
-                                detail_this_strong.append(next_tag.get('href'))
-                            elif next_tag.name == 'span':
-                                detail_this_strong.append(next_tag.get_text())
-                        else:
-                            # 如果没下一项内容了就跳出循环,继续找<strong>
-                            break
-                        # this_tag指向下一项,继续循环
-                        this_tag = next_tag                                                   
+                            # 判断是文字还是链接
+                            if next_tag.name == this_tag.name:                                    
+                                if next_tag.name == 'a':
+                                    detail_this_strong.append(next_tag.get('href'))
+                                elif next_tag.name == 'span':
+                                    detail_this_strong.append(next_tag.get_text())
+                            else:
+                                # 如果没下一项内容了就跳出循环,继续找<strong>
+                                break
+                            # this_tag指向下一项,继续循环
+                            this_tag = next_tag                                                   
 
                     # 先丢到临时存储里面去，稍后循环结束了再整理
                     temp_detail[each_strong_item.get_text().lstrip('| ').rstrip(':')] = detail_this_strong

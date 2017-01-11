@@ -3,10 +3,11 @@
 from classes.tapfighter import TapFighter
 
 def main():
-    tapfighter_test = TapFighter('holly holm')
+    tapfighter_test = TapFighter('mike')
 
-    print(tapfighter_test.name)
-    print(tapfighter_test.aka)
+    for each_fighter in tapfighter_test.fighters:
+        print(each_fighter.name)
+        print(each_fighter.aka)
 
 if __name__ == '__main__':
     main()
