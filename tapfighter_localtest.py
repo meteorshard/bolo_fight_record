@@ -3,12 +3,10 @@
 from classes.tapfighter import TapFighter
 
 def main():
-    tapfighter_test = TapFighter('aldo')
+    tapfighter_test = TapFighter('holly holm')
 
     for each_fighter in tapfighter_test.fighters:
-        print(each_fighter.name)
-        print(each_fighter.aka)
-        print(each_fighter.fight_records)
+        print(each_fighter.to_json())
 
 if __name__ == '__main__':
     main()

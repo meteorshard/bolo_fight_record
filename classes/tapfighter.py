@@ -14,7 +14,7 @@ class TapFighter(object):
     """
 
     class Fighter(object):
-        """ 选手详情类
+        """ 选手类
 
         Attributes:
             name: 选手名字 string
@@ -29,26 +29,21 @@ class TapFighter(object):
                 Example:
                 [ 
                     { 
-                        "Time" : "2:52 Round 3 of 3, 12:52 Total", 
-                        "Result" : "Loss | KO/TKO | Punches", 
-                        "Opponent" : { 
-                            "Name" : BinData(0,"UnlhbiBDb3V0dXJl"), 
-                            "Url" : "/fightcenter/fighters/ryan-couture" 
-                        } 
+                        "time" : "2:52 Round 3 of 3, 12:52 Total", 
+                        "result" : "Loss | KO/TKO | Punches", 
+                        "opponent" : <Fighter>
                     }, 
                     { 
-                        "Time" : "3 Rounds, 15:00 Total", 
-                        "Result" : "Win | Decision | Unanimous", 
-                        "Opponent" : { 
-                            "Name" : BinData(0,"TWFnbm8gQWxtZWlkYQ=="), 
-                            "Url" : "/fightcenter/fighters/magno-almeida" 
+                        "time" : "3 Rounds, 15:00 Total", 
+                        "result" : "Win | Decision | Unanimous", 
+                        "opponent" : <Fighter>
                         } 
                     } 
                 ]
         """
 
         def __init__(self):
-            """ 构造函数
+            """ 选手类构造函数
             
             给选手类赋初值
 
@@ -64,6 +59,55 @@ class TapFighter(object):
             self.birthday = datetime(1799, 1, 1)
             self.personal_page = ''
             self.fight_records = []
+
+        def to_json(self):
+            """ 输出为json格式
+
+            """
+
+            dict_json = {}
+
+            if self.name:
+                dict_json.update({'name': self.name})
+
+            if self.aka:
+                dict_json.update({'aka': self.aka})
+
+            if self.affliation:
+                dict_json.update({'affliation': self.affliation})
+
+            if self.height != 0:
+                dict_json.update({'height': self.height})
+
+            if self.weight != 0:
+                dict_json.update({'weight': self.weight})
+
+            if self.reach != 0:
+                dict_json.update({'reach': self.reach})
+
+            if self.weight_class:
+                dict_json.update({'weight_class': self.weight_class})
+
+            if self.birthday != datetime(1799, 1, 1):
+                dict_json.update({'birthday': self.birthday})
+
+            if self.personal_page:
+                dict_json.update({'personal_page': self.personal_page})
+
+            if self.fight_records:
+                temp_records = []
+
+                for each_record in self.fight_records:
+                    temp_fighter = {}
+                    temp_fighter['name'] = each_record['opponent'].name
+                    temp_fighter['personal_page'] = each_record['opponent'].personal_page
+
+                    temp_records.append(temp_fighter)
+
+                dict_json.update({'fight_records': temp_records})
+
+            return dict_json
+
 
 
     def __init__(self, text_to_search):
@@ -319,7 +363,7 @@ class TapFighter(object):
                 # 下面寻找对手，对手信息在第二列，在<a>的标签里（如果有的话）
                 opponent_sector = record_cols[1].find_all('a')
                 
-
+                # 如果找到了对手区域，建立一个Fighter对象把对手信息塞进去
                 if opponent_sector:
                     this_opponent = self.Fighter()
                     this_opponent.name = opponent_sector[0].get_text()
