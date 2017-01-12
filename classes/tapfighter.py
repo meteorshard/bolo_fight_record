@@ -102,8 +102,14 @@ class TapFighter(object):
 
                 for each_record in self.fight_records:
                     temp_fighter = {}
-                    temp_fighter['name'] = each_record['opponent'].name
-                    temp_fighter['personal_page'] = each_record['opponent'].personal_page
+                    if 'name' in each_record:
+                        temp_fighter['name'] = each_record['opponent'].name
+                    if 'personal_page' in each_record:
+                        temp_fighter['personal_page'] = each_record['opponent'].personal_page
+                    if 'result' in each_record:
+                        temp_fighter['result'] = each_record['result']
+                    if 'time' in each_record:
+                        temp_fighter['time'] = each_record['time']
 
                     temp_records.append(temp_fighter)
 
