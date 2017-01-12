@@ -2,6 +2,7 @@
 
 import requests
 import re
+import json
 from bs4 import BeautifulSoup
 from datetime import datetime
 
@@ -61,40 +62,42 @@ class TapFighter(object):
             self.fight_records = []
 
         def to_json(self):
-            """ 输出为json格式
+            """ 把Fighter实例的属性拆出来
+            输出为json格式
 
             """
 
-            dict_json = {}
+            extract_to_dict = {}
 
             if self.name:
-                dict_json.update({'name': self.name})
+                extract_to_dict.update({'name': self.name})
 
             if self.aka:
-                dict_json.update({'aka': self.aka})
+                extract_to_dict.update({'aka': self.aka})
 
             if self.affliation:
-                dict_json.update({'affliation': self.affliation})
+                extract_to_dict.update({'affliation': self.affliation})
 
             if self.height != 0:
-                dict_json.update({'height': self.height})
+                extract_to_dict.update({'height': self.height})
 
             if self.weight != 0:
-                dict_json.update({'weight': self.weight})
+                extract_to_dict.update({'weight': self.weight})
 
             if self.reach != 0:
-                dict_json.update({'reach': self.reach})
+                extract_to_dict.update({'reach': self.reach})
 
             if self.weight_class:
-                dict_json.update({'weight_class': self.weight_class})
+                extract_to_dict.update({'weight_class': self.weight_class})
 
             if self.birthday != datetime(1799, 1, 1):
-                dict_json.update({'birthday': self.birthday})
+                extract_to_dict.update({'birthday': self.birthday})
 
             if self.personal_page:
-                dict_json.update({'personal_page': self.personal_page})
+                extract_to_dict.update({'personal_page': self.personal_page})
 
-            if self.fight_records:
+            if self.fight_records:           
+                # 因为Fighter实例不能直接输出json，所以拆到一个dict里面再输出
                 temp_records = []
 
                 for each_record in self.fight_records:
@@ -104,9 +107,9 @@ class TapFighter(object):
 
                     temp_records.append(temp_fighter)
 
-                dict_json.update({'fight_records': temp_records})
+                extract_to_dict.update({'fight_records': temp_records})
 
-            return dict_json
+            return json.dumps(extract_to_dict, indent=4)
 
 
 
@@ -370,7 +373,7 @@ class TapFighter(object):
                     this_opponent.personal_page = 'www.tapology.com' + opponent_sector[0].get('href')
                     this_record['opponent'] = this_opponent
 
-            fighter.fight_records.append(this_record)
+                fighter.fight_records.append(this_record)
 
         return fighter
 
