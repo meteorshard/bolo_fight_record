@@ -6,15 +6,15 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 class TapFighter(object):
-    ''' 数据来自Tapology.com的选手类
+    """ 数据来自Tapology.com的选手类
 
     Attributes:
         fighters: 具体选手Fighter类的实例 list
 
-    '''
+    """
 
     class Fighter(object):
-        ''' 选手详情类
+        """ 选手详情类
 
         Attributes:
             name: 选手名字 string
@@ -24,6 +24,7 @@ class TapFighter(object):
             weight: 体重 float
             reach: 臂展 float
             weight_class: 重量级 string
+            personal_page: 个人页面 string
             fight_records: 战绩 list
                 Example:
                 [ 
@@ -44,14 +45,14 @@ class TapFighter(object):
                         } 
                     } 
                 ]
-        '''
+        """
 
         def __init__(self):
-            ''' 构造函数
+            """ 构造函数
             
             给选手类赋初值
 
-            '''
+            """
 
             self.name = ''
             self.aka = ''
@@ -61,11 +62,12 @@ class TapFighter(object):
             self.reach = 0
             self.weight_class = ''
             self.birthday = datetime(1799, 1, 1)
+            self.personal_page = ''
             self.fight_records = []
 
 
     def __init__(self, text_to_search):
-        ''' 构造函数
+        """ 构造函数
 
         1. 初始化选手属性
         2. 传入搜索参数并调用对应函数进行搜索
@@ -73,7 +75,7 @@ class TapFighter(object):
         Args:
             text_to_search: 用于在tapology.com上搜索的字符串，可以是选手姓名或者网页
 
-        '''
+        """
 
         self.fighters = []
 
@@ -94,7 +96,7 @@ class TapFighter(object):
                         break
 
     def __search(self, fighter_name):
-        ''' 搜索选手名字，解析搜索结果页，获取详情页地址
+        """ 搜索选手名字，解析搜索结果页，获取详情页地址
 
         Args: 
             fighter_name: 选手名字
@@ -102,7 +104,7 @@ class TapFighter(object):
         Returns:
             返回详情页url列表
 
-        '''
+        """
         s = requests.session()
 
         # 把空格用加号代替方便搜索
@@ -137,7 +139,7 @@ class TapFighter(object):
         return detail_page_urls
 
     def __analyze_detail_page(self, url):
-        ''' 解析详情页
+        """ 解析详情页
 
         Args:
             url: 传入的详情页url
@@ -145,7 +147,7 @@ class TapFighter(object):
         Returns:
             返回Fighter类
 
-        '''
+        """
         s = requests.session()
         header = {
             'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -172,7 +174,7 @@ class TapFighter(object):
         # 用来临时存储选手详细数据（除了战绩）
         temp_detail = {}
 
-        ''' 取每个单元格的内容
+        """ 取每个单元格的内容
             粗体的是类别,比如名字、绰号什么的
             Example:
 
@@ -184,7 +186,7 @@ class TapFighter(object):
                 <strong>MMA Record:</strong>
                 <span>7-4-0 (Win-Loss-Draw)</span>
             </li>
-        '''
+        """
         for li in each_li:
             strong_items = li.find_all('strong')
 
@@ -255,10 +257,10 @@ class TapFighter(object):
             yearBirth, monthBirth, dayBirth = temp_detail['Date of Birth'][0].split('.')
             fighter.birthday = datetime(int(yearBirth),int(monthBirth),int(dayBirth))
 
-        ''' 下面开始解析战绩部分
+        """ 下面开始解析战绩部分
         战绩区域是一个class_='fightRecord'的table
         每个<tr>是一行，但并不是每行都是战绩
-        如果一行有超过4个<td>说明这一行是具体的战绩
+        如果一行有超过3个<td>说明这一行是具体的战绩
 
         Example:
 
@@ -290,7 +292,7 @@ class TapFighter(object):
             <td class="date">2017.01.15</td>
         </tr>
         
-        '''
+        """
 
         # 获取战绩区域
         record_sector = soup.find_all('table', class_='fightRecord')
@@ -298,9 +300,33 @@ class TapFighter(object):
         # 获取战绩区域的所有行
         for each_record_row in record_sector[0].tbody.tr.find_all('tr'):
             record_cols = each_record_row.find_all('td')
+            
             # 如果一行超过4个<td>说明这是要找的战绩行
-            if len(record_cols) >= 4:
+            if len(record_cols) >= 4:  
+                this_record = {}
+                result_spans = record_cols[0].find_all('span')
 
+                # 有<span>的格式里，第一个span肯定是结果的文本描述
+                if result_spans:                      
+                    this_record['result'] = result_spans[0].get_text(strip=True)
+
+                    # 如果有不止一个<span>说明带有比赛时间信息
+                    if len(result_spans) >= 2:  
+                        this_record['time'] = result_spans[1].get_text(strip=True)
+                else:  
+                    this_record['result'] = record_cols[0].get_text(strip=True)
+
+                # 下面寻找对手，对手信息在第二列，在<a>的标签里（如果有的话）
+                opponent_sector = record_cols[1].find_all('a')
+                
+
+                if opponent_sector:
+                    this_opponent = self.Fighter()
+                    this_opponent.name = opponent_sector[0].get_text()
+                    this_opponent.personal_page = 'www.tapology.com' + opponent_sector[0].get('href')
+                    this_record['opponent'] = this_opponent
+
+            fighter.fight_records.append(this_record)
 
         return fighter
 

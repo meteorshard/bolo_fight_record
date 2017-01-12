@@ -8,6 +8,7 @@ def main():
     for each_fighter in tapfighter_test.fighters:
         print(each_fighter.name)
         print(each_fighter.aka)
+        print(each_fighter.fight_records)
 
 if __name__ == '__main__':
     main()
