@@ -91,7 +91,7 @@ class TapFighter(object):
                 extract_to_dict.update({'weight_class': self.weight_class})
 
             if self.birthday != datetime(1799, 1, 1):
-                extract_to_dict.update({'birthday': self.birthday.strftime('%Y.%M.%D')})
+                extract_to_dict.update({'birthday': self.birthday.strftime('%Y.%m.%d')})
 
             if self.personal_pages:
                 extract_to_dict.update({'personal_pages': self.personal_pages})
