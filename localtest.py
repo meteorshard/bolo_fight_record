@@ -33,7 +33,11 @@ def search_by_name(name, second_time=False):
     cursor = fighters.find({'name': re.compile(name_regex, re.IGNORECASE)})
     # 如果有查找结果
     if cursor.count() > 0:
-        return cursor
+        temp_list = []
+        for document in cursor:
+            document.pop('_id')
+            temp_list.append(document)
+        return jsonify(temp_list)
     elif second_time == False:
         # 数据库里找不到就去Tapology搜索
         tapfighters = TapFighter(name)
