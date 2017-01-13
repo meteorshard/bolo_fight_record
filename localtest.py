@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from classes.fighter import Fighter
+from classes.tapfighter import TapFighter
 from pymongo import MongoClient
 from flask import Flask, request, jsonify
+import json
 import re
 
 app = Flask(__name__)
@@ -16,7 +17,7 @@ def create():
     pass
 
 
-def search_by_name(name):
+def search_by_name(name, second_time=False):
     # 连接数据库
     bolofightrecord_client = MongoClient()
     db = bolofightrecord_client.bolofightrecord
@@ -31,44 +32,23 @@ def search_by_name(name):
     # 按照正则表达式进行搜索，忽略大小写
     cursor = fighters.find({'name': re.compile(name_regex, re.IGNORECASE)})
     # 如果有查找结果
-    fighters_return = []
     if cursor.count() > 0:
-        print('Found!')
-        for fighter_found in cursor:
-            if ('fightrecord' in fighter_found.keys()):
-                for each_fight_record in fighter_found['fightrecord']:
-                    if ('Name' in each_fight_record['Opponent'].keys()):
-                        each_fight_record['Opponent']['Name'] = each_fight_record['Opponent']['Name'].decode()
-                fighter_dict = {
-                    'name': fighter_found['name'],
-                    'aka': fighter_found['aka'],
-                    'fightrecord': fighter_found['fightrecord'],
-                }
-            fighters_return.append(fighter_dict)      
-        # return repr(fighters_return)
-    else:
+        return cursor
+    elif second_time == False:
         # 数据库里找不到就去Tapology搜索
-        tapfighter = Fighter(name)
+        tapfighters = TapFighter(name)
 
-        fighter_detail = {
-            'name': tapfighter.name,
-            'aka': tapfighter.aka,
-            'fightrecord': tapfighter.fightrecord
-        }
+        if tapfighters.fighters:
+            for each_found_fighter in tapfighters.fighters:
+                result = fighters.insert_one(json.loads(each_found_fighter.to_json()))
 
-        result = fighters.insert_one(fighter_detail)
+            return search_by_name(name, True)
+        else:
+            return -1
+    else:
+        return -1
 
-        fighter_detail.pop('_id', None)
 
-        for each_fight_record in fighter_detail['fightrecord']:
-            if 'Opponent' in each_fight_record.keys():
-                if 'Name' in each_fight_record['Opponent'].keys():
-                    each_fight_record['Opponent']['Name'] = each_fight_record['Opponent']['Name'].decode()
-
-        fighters_return.append(fighter_detail)
-        # print(repr(fighters_return))
-
-    return jsonify({'fighter': fighters_return})
 
 # def tt_localtest():
 #     test_fighter = Fighter('sdfaksdlfasd')

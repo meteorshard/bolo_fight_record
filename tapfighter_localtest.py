@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from classes.tapfighter import TapFighter
-from pprint import pprint
 
 def main():
-    tapfighter_test = TapFighter('conor mcgregor')
+    tapfighter_test = TapFighter('ronda')
 
     for each_fighter in tapfighter_test.fighters:
         print(each_fighter.to_json())

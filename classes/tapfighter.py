@@ -145,6 +145,7 @@ class TapFighter(object):
                 for url in fighter_urls:
                     self.fighters.append(self.__analyze_detail_page(url))
 
+                    # 目前最多只返回三个结果
                     if len(self.fighters) >= 3:
                         break
 
@@ -300,11 +301,13 @@ class TapFighter(object):
 
         # 选手身高
         if 'Height' in temp_detail: 
-            fighter.height = re.search(r'\([1-2]\d{2}cm\)',temp_detail['Height'][0]).group(0).lstrip('(').rstrip('cm)')
+            if temp_detail['Height'][0] != r'N/A':
+                fighter.height = re.search(r'\([1-2]\d{2}cm\)',temp_detail['Height'][0]).group(0).lstrip('(').rstrip('cm)')
 
         # 选手臂展
-        if 'Reach' in temp_detail: 
-            fighter.reach = re.search(r'\([1-2]\d{2}cm\)',temp_detail['Reach'][0]).group(0).lstrip('(').rstrip('cm)')
+        if 'Reach' in temp_detail:
+            if temp_detail['Reach'][0] != r'N/A':
+                fighter.reach = re.search(r'\([1-2]\d{2}cm\)',temp_detail['Reach'][0]).group(0).lstrip('(').rstrip('cm)')
 
         # 选手生日
         if 'Date of Birth' in temp_detail:
