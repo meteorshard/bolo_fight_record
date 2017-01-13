@@ -20,12 +20,12 @@ class TapFighter(object):
         Attributes:
             name: 选手名字 string
             aka: 绰号 string
-            affliation: 战队 string
+            affiliation: 战队 string
             height: 身高 float
             weight: 体重 float
             reach: 臂展 float
             weight_class: 重量级 string
-            personal_page: 个人页面 string
+            personal_pages: 个人页面 string
             fight_records: 战绩 list
                 Example:
                 [ 
@@ -52,13 +52,13 @@ class TapFighter(object):
 
             self.name = ''
             self.aka = ''
-            self.affliation = ''
+            self.affiliation = ''
             self.height = 0
             self.weight = 0
             self.reach = 0
             self.weight_class = ''
             self.birthday = datetime(1799, 1, 1)
-            self.personal_page = ''
+            self.personal_pages = ''
             self.fight_records = []
 
         def to_json(self):
@@ -75,8 +75,8 @@ class TapFighter(object):
             if self.aka:
                 extract_to_dict.update({'aka': self.aka})
 
-            if self.affliation:
-                extract_to_dict.update({'affliation': self.affliation})
+            if self.affiliation:
+                extract_to_dict.update({'affiliation': self.affiliation})
 
             if self.height != 0:
                 extract_to_dict.update({'height': self.height})
@@ -91,10 +91,10 @@ class TapFighter(object):
                 extract_to_dict.update({'weight_class': self.weight_class})
 
             if self.birthday != datetime(1799, 1, 1):
-                extract_to_dict.update({'birthday': self.birthday})
+                extract_to_dict.update({'birthday': self.birthday.strftime('%Y.%M.%D')})
 
-            if self.personal_page:
-                extract_to_dict.update({'personal_page': self.personal_page})
+            if self.personal_pages:
+                extract_to_dict.update({'personal_pages': self.personal_pages})
 
             if self.fight_records:           
                 # 因为Fighter实例不能直接输出json，所以拆到一个dict里面再输出
@@ -104,8 +104,8 @@ class TapFighter(object):
                     temp_fighter = {}
                     if 'name' in each_record:
                         temp_fighter['name'] = each_record['opponent'].name
-                    if 'personal_page' in each_record:
-                        temp_fighter['personal_page'] = each_record['opponent'].personal_page
+                    if 'personal_pages' in each_record:
+                        temp_fighter['personal_pages'] = each_record['opponent'].personal_pages
                     if 'result' in each_record:
                         temp_fighter['result'] = each_record['result']
                     if 'time' in each_record:
@@ -227,19 +227,19 @@ class TapFighter(object):
         # 用来临时存储选手详细数据（除了战绩）
         temp_detail = {}
 
-        """ 取每个单元格的内容
-            粗体的是类别,比如名字、绰号什么的
-            Example:
+        # 取每个单元格的内容
+        # 粗体的是类别,比如名字、绰号什么的
+        # Example:
 
-            <li class="noPadStripe">
-                <strong>Name:</strong>
-                <span>Mike Adams</span>
-            </li>
-            <li class="Stripe">
-                <strong>MMA Record:</strong>
-                <span>7-4-0 (Win-Loss-Draw)</span>
-            </li>
-        """
+        # <li class="noPadStripe">
+        #     <strong>Name:</strong>
+        #     <span>Mike Adams</span>
+        # </li>
+        # <li class="Stripe">
+        #     <strong>MMA Record:</strong>
+        #     <span>7-4-0 (Win-Loss-Draw)</span>
+        # </li>
+        
         for li in each_li:
             strong_items = li.find_all('strong')
 
@@ -251,7 +251,7 @@ class TapFighter(object):
                     this_tag = each_strong_item.next_sibling.next_sibling
 
                     # 如果内容存在（至少一项）则判断是文字还是链接
-                    if this_tag:                                                             
+                    if this_tag:
                         if this_tag.name == 'a':
                             detail_this_strong.append(this_tag.get('href'))
                         elif this_tag.name == 'span':
@@ -268,14 +268,11 @@ class TapFighter(object):
                                     detail_this_strong.append(next_tag.get('href'))
                                 elif next_tag.name == 'span':
                                     detail_this_strong.append(next_tag.get_text())
-                            else:
-                                # 如果没下一项内容了就跳出循环,继续找<strong>
-                                break
                             # this_tag指向下一项,继续循环
-                            this_tag = next_tag                                                   
+                            this_tag = next_tag                                                                       
 
-                    # 先丢到临时存储里面去，稍后循环结束了再整理
-                    temp_detail[each_strong_item.get_text().lstrip('| ').rstrip(':')] = detail_this_strong
+                        # 先丢到临时存储里面去，稍后循环结束了再整理
+                        temp_detail[each_strong_item.get_text().lstrip('| ').rstrip(':')] = detail_this_strong
 
         # 把临时存储整理到Fighter对象去
         # 选手姓名
@@ -290,12 +287,16 @@ class TapFighter(object):
                 fighter.aka = temp_detail['Nickname'][0]
 
         # 选手组织
-        if 'Affiliation' in temp_detail:    
+        if 'Affiliation' in temp_detail:
             fighter.affiliation = temp_detail['Affiliation'][0]
 
         # 选手重量级
         if 'Weight Class' in temp_detail: 
             fighter.weight_class = temp_detail['Weight Class'][0]
+
+        # 最新体重
+        if 'Last Weigh-In' in temp_detail: 
+            fighter.weight = temp_detail['Last Weigh-In'][0].rstrip(' lbs')
 
         # 选手身高
         if 'Height' in temp_detail: 
@@ -309,6 +310,10 @@ class TapFighter(object):
         if 'Date of Birth' in temp_detail:
             yearBirth, monthBirth, dayBirth = temp_detail['Date of Birth'][0].split('.')
             fighter.birthday = datetime(int(yearBirth),int(monthBirth),int(dayBirth))
+
+        # 个人页面
+        if 'Personal Pages' in temp_detail:
+            fighter.personal_pages = temp_detail['Personal Pages']
 
         """ 下面开始解析战绩部分
         战绩区域是一个class_='fightRecord'的table
@@ -376,7 +381,7 @@ class TapFighter(object):
                 if opponent_sector:
                     this_opponent = self.Fighter()
                     this_opponent.name = opponent_sector[0].get_text()
-                    this_opponent.personal_page = 'www.tapology.com' + opponent_sector[0].get('href')
+                    this_opponent.personal_pages = 'www.tapology.com' + opponent_sector[0].get('href')
                     this_record['opponent'] = this_opponent
 
                 fighter.fight_records.append(this_record)

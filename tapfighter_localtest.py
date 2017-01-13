@@ -7,8 +7,7 @@ def main():
     tapfighter_test = TapFighter('conor mcgregor')
 
     for each_fighter in tapfighter_test.fighters:
-        # print(each_fighter.to_json())
-        pprint(each_fighter)
+        print(each_fighter.to_json())
 
 if __name__ == '__main__':
     main()
