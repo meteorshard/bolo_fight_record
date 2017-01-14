@@ -33,14 +33,40 @@ def search():
         ]
 
     """
-    if request.args.get('name'):
+    name = request.args.get('name')
+    if name:
         if request.args.get('target') == 'local':
-            pass
+
+            # 连接数据库
+            bfr_client = MongoClient()
+            db = bfr_client.bolofightrecord
+
+             # 分词和构建正则表达式
+            name_regex = ''
+            name_splited = name.split(' ')
+            for each_word in name_splited:
+                name_regex = name_regex + r'\b' + each_word + r'.*'
+            name_regex = r'.*\b' + name_regex
+
+            # 按照正则表达式进行搜索，忽略大小写
+            cursor = db.fighters.find({'name': re.compile(name_regex, re.IGNORECASE)})
+
+            # 如果有查找结果
+            if cursor.count() > 0:
+                fighters_found_list = []
+                for document in cursor:
+                    # 把无法序列化的字段干掉
+                    document.pop('_id')
+                    fighters_found_list.append(document)
+                return jsonify(fighters_found_list)
+
         elif request.args.get('target') == 'remote':
-            pass
+            return 'No target', 404
+        else:
+            return 'No name', 404
 
     else:
-        return '404', 404
+        return 'Nothing found', 404
     # return search_by_name(request.args.get('name').replace('%20',' '))
 
 
