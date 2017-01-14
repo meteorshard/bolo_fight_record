@@ -61,6 +61,27 @@ class TapFighter(object):
             self.personal_pages = ''
             self.fight_records = []
 
+        def serialize(self):
+            """序列化Fighter对象
+
+            Returns:
+                serialized_dict = {}
+
+            """
+
+            serialized_dict = {}
+
+            for attrname in dir(self):
+                attrvalue = getattr(self, attrname)
+                if (not attrname.startswith('__') and 
+                    attrvalue and 
+                    attrvalue != datetime(1799, 1, 1) and 
+                    not callable(attrvalue)):
+
+                    serialized_dict[attrname] = attrvalue
+
+
+
         def to_json(self):
             """ 把Fighter实例的属性拆出来
             输出为json格式
