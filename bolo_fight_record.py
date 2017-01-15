@@ -20,7 +20,7 @@ def search():
     请求格式：
 
         Example:
-            /api/v0.1/fighter?name=conor mcgregor&target=local
+        /api/v0.1/fighter?name=conor mcgregor&target=local
 
     URL Args: 
         name: 待查找的名字，可以有空格

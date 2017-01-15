@@ -268,7 +268,8 @@ class TapFighter(object):
 
         # 选手组织
         if 'Affiliation' in temp_detail:
-            fighter.affiliation = temp_detail['Affiliation'][0]
+            if temp_detail['Affiliation'][0] != r'N/A':
+                fighter.affiliation = temp_detail['Affiliation'][0]
 
         # 选手重量级
         if 'Weight Class' in temp_detail:
@@ -276,7 +277,8 @@ class TapFighter(object):
 
         # 最新体重
         if 'Last Weigh-In' in temp_detail:
-            fighter.weight = temp_detail['Last Weigh-In'][0].rstrip(' lbs')
+            if temp_detail['Last Weigh-In'][0] != r'N/A':
+                fighter.weight = temp_detail['Last Weigh-In'][0].rstrip(' lbs')
 
         # 选手身高
         if 'Height' in temp_detail:
