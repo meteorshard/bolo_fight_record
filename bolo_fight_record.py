@@ -115,8 +115,8 @@ def search():
 
             if tapfighters.fighters:
                 for each_fighter_found in tapfighters.fighters:
-                    fighters_found_list.append(each_fighter_found.to_json())
-                    result = db.fighters.insert_one(json.loads(each_fighter_found.to_json()))
+                    fighters_found_list.append(each_fighter_found.serialize())
+                    result = db.fighters.insert_one(each_fighter_found.serialize())
         else:
             return 'Wrong target', 404
 
@@ -124,13 +124,6 @@ def search():
 
     else:
         return 'No name', 404
-    # return search_by_name(request.args.get('name').replace('%20',' '))
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
