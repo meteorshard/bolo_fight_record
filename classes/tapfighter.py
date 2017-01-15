@@ -28,24 +28,24 @@ class TapFighter(object):
             personal_pages: 个人页面 string
             fight_records: 战绩 list
                 Example:
-                [ 
-                    { 
-                        "time" : "2:52 Round 3 of 3, 12:52 Total", 
-                        "result" : "Loss | KO/TKO | Punches", 
+                [
+                    {
+                        "time" : "2:52 Round 3 of 3, 12:52 Total",
+                        "result" : "Loss | KO/TKO | Punches",
                         "opponent" : <Fighter>
-                    }, 
-                    { 
-                        "time" : "3 Rounds, 15:00 Total", 
-                        "result" : "Win | Decision | Unanimous", 
+                    },
+                    {
+                        "time" : "3 Rounds, 15:00 Total",
+                        "result" : "Win | Decision | Unanimous",
                         "opponent" : <Fighter>
-                        } 
-                    } 
+                        }
+                    }
                 ]
         """
 
         def __init__(self):
             """ 选手类构造函数
-            
+
             给选手类赋初值
 
             """
@@ -61,62 +61,41 @@ class TapFighter(object):
             self.personal_pages = ''
             self.fight_records = []
 
-        def to_json(self):
-            """ 把Fighter实例的属性拆出来
-            输出为json格式
+        def serialize(self):
+            """序列化Fighter对象
+            返回包括本Fighter对象属性的dict
+
+            Returns:
+                serialized_dict = {}
 
             """
 
-            extract_to_dict = {}
+            serialized_dict = {}
 
-            if self.name:
-                extract_to_dict.update({'name': self.name})
+            for attrname in dir(self):
+                attrvalue = getattr(self, attrname)
+                if (not attrname.startswith('__') and
+                    attrvalue and
+                    attrvalue != datetime(1799, 1, 1) and
+                    not callable(attrvalue)):
 
-            if self.aka:
-                extract_to_dict.update({'aka': self.aka})
+                    if attrname == 'fight_records':
+                        temp_records = []
+                        
+                        # print(repr(attrvalue))
+                        for each_record in attrvalue:
+                            opponent_fighter={}
+                            for k,v in each_record.items():
+                                if k == 'opponent':
+                                    opponent_fighter[k] = v.name
+                                else:
+                                    opponent_fighter[k] = v
+                            temp_records.append(opponent_fighter)
+                        serialized_dict.update({attrname: temp_records})
+                    else:
+                        serialized_dict[attrname] = attrvalue
 
-            if self.affiliation:
-                extract_to_dict.update({'affiliation': self.affiliation})
-
-            if self.height != 0:
-                extract_to_dict.update({'height': self.height})
-
-            if self.weight != 0:
-                extract_to_dict.update({'weight': self.weight})
-
-            if self.reach != 0:
-                extract_to_dict.update({'reach': self.reach})
-
-            if self.weight_class:
-                extract_to_dict.update({'weight_class': self.weight_class})
-
-            if self.birthday != datetime(1799, 1, 1):
-                extract_to_dict.update({'birthday': self.birthday.strftime('%Y.%m.%d')})
-
-            if self.personal_pages:
-                extract_to_dict.update({'personal_pages': self.personal_pages})
-
-            if self.fight_records:           
-                # 因为Fighter实例不能直接输出json，所以拆到一个dict里面再输出
-                temp_records = []
-
-                for each_record in self.fight_records:
-                    temp_fighter = {}
-                    if 'name' in each_record:
-                        temp_fighter['name'] = each_record['opponent'].name
-                    if 'personal_pages' in each_record:
-                        temp_fighter['personal_pages'] = each_record['opponent'].personal_pages
-                    if 'result' in each_record:
-                        temp_fighter['result'] = each_record['result']
-                    if 'time' in each_record:
-                        temp_fighter['time'] = each_record['time']
-
-                    temp_records.append(temp_fighter)
-
-                extract_to_dict.update({'fight_records': temp_records})
-
-            return json.dumps(extract_to_dict, indent=4)
-
+            return serialized_dict
 
 
     def __init__(self, text_to_search):
@@ -152,7 +131,7 @@ class TapFighter(object):
     def __search(self, fighter_name):
         """ 搜索选手名字，解析搜索结果页，获取详情页地址
 
-        Args: 
+        Args:
             fighter_name: 选手名字
 
         Returns:
@@ -240,7 +219,7 @@ class TapFighter(object):
         #     <strong>MMA Record:</strong>
         #     <span>7-4-0 (Win-Loss-Draw)</span>
         # </li>
-        
+
         for li in each_li:
             strong_items = li.find_all('strong')
 
@@ -264,13 +243,13 @@ class TapFighter(object):
                             next_tag = this_tag.next_sibling.next_sibling
 
                             # 判断是文字还是链接
-                            if next_tag.name == this_tag.name:                                    
+                            if next_tag.name == this_tag.name:
                                 if next_tag.name == 'a':
                                     detail_this_strong.append(next_tag.get('href'))
                                 elif next_tag.name == 'span':
                                     detail_this_strong.append(next_tag.get_text())
                             # this_tag指向下一项,继续循环
-                            this_tag = next_tag                                                                       
+                            this_tag = next_tag
 
                         # 先丢到临时存储里面去，稍后循环结束了再整理
                         temp_detail[each_strong_item.get_text().lstrip('| ').rstrip(':')] = detail_this_strong
@@ -289,18 +268,20 @@ class TapFighter(object):
 
         # 选手组织
         if 'Affiliation' in temp_detail:
-            fighter.affiliation = temp_detail['Affiliation'][0]
+            if temp_detail['Affiliation'][0] != r'N/A':
+                fighter.affiliation = temp_detail['Affiliation'][0]
 
         # 选手重量级
-        if 'Weight Class' in temp_detail: 
+        if 'Weight Class' in temp_detail:
             fighter.weight_class = temp_detail['Weight Class'][0]
 
         # 最新体重
-        if 'Last Weigh-In' in temp_detail: 
-            fighter.weight = temp_detail['Last Weigh-In'][0].rstrip(' lbs')
+        if 'Last Weigh-In' in temp_detail:
+            if temp_detail['Last Weigh-In'][0] != r'N/A':
+                fighter.weight = temp_detail['Last Weigh-In'][0].rstrip(' lbs')
 
         # 选手身高
-        if 'Height' in temp_detail: 
+        if 'Height' in temp_detail:
             if temp_detail['Height'][0] != r'N/A':
                 fighter.height = re.search(r'\([1-2]\d{2}cm\)',temp_detail['Height'][0]).group(0).lstrip('(').rstrip('cm)')
 
@@ -352,7 +333,7 @@ class TapFighter(object):
             </td>
             <td class="date">2017.01.15</td>
         </tr>
-        
+
         """
 
         # 获取战绩区域
@@ -361,25 +342,25 @@ class TapFighter(object):
         # 获取战绩区域的所有行
         for each_record_row in record_sector[0].tbody.tr.find_all('tr'):
             record_cols = each_record_row.find_all('td')
-            
+
             # 如果一行超过4个<td>说明这是要找的战绩行
-            if len(record_cols) >= 4:  
+            if len(record_cols) >= 4:
                 this_record = {}
                 result_spans = record_cols[0].find_all('span')
 
                 # 有<span>的格式里，第一个span肯定是结果的文本描述
-                if result_spans:                      
+                if result_spans:
                     this_record['result'] = result_spans[0].get_text(strip=True)
 
                     # 如果有不止一个<span>说明带有比赛时间信息
-                    if len(result_spans) >= 2:  
+                    if len(result_spans) >= 2:
                         this_record['time'] = result_spans[1].get_text(strip=True)
-                else:  
+                else:
                     this_record['result'] = record_cols[0].get_text(strip=True)
 
                 # 下面寻找对手，对手信息在第二列，在<a>的标签里（如果有的话）
                 opponent_sector = record_cols[1].find_all('a')
-                
+
                 # 如果找到了对手区域，建立一个Fighter对象把对手信息塞进去
                 if opponent_sector:
                     this_opponent = self.Fighter()
