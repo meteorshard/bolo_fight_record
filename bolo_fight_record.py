@@ -83,7 +83,8 @@ def search():
 
     if name and target:
         # 连接数据库
-        bfr_client = MongoClient()
+        URI = 'mongodb://root:pgM9px0RO1syxXR0FMOqAHZC4mvmIuNFyDCAezEY@jcaferaanzdw.mongodb.sae.sina.com.cn:10453,snxggenumogl.mongodb.sae.sina.com.cn:10453'
+        bfr_client = MongoClient(URI)
         db = bfr_client.bolofightrecord
 
         fighters_found_list = []
