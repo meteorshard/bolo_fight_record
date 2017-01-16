@@ -128,4 +128,4 @@ def search():
 
 
 if __name__ == '__main__':
-    bfr_app.run(debug=True)
+    bfr_app.run(host='0.0.0.0')
